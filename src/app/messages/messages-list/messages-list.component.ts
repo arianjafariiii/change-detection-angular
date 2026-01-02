@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, input, OnInit } from '@angular/core';
 import { MessagesService } from '../messages.service';
 
 @Component({
@@ -8,9 +8,17 @@ import { MessagesService } from '../messages.service';
   styleUrl: './messages-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MessagesListComponent {
+export class MessagesListComponent implements OnInit{
   private messagesService = inject(MessagesService);
-  messages = this.messagesService.allMessages;
+  private cdRef = inject(ChangeDetectorRef)
+  messages: string[] = []
+
+  ngOnInit(){
+    this.messagesService.messages$.subscribe((messages) => {
+      this.messages = messages;
+      this.cdRef.markForCheck();
+    })
+  }
 
   get debugOutput() {
     console.log('[MessagesList] "debugOutput" binding re-evaluated.');
